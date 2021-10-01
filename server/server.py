@@ -17,6 +17,16 @@ def put():
     file.close()
     print(f'[RECEIVED] Received file \'{filename}\'')
 
+def create():
+    print('[WAIT] File being added to server...')
+    received = conn.recv(BUFFER).decode()
+    filename, data = received.split(SEPARATOR)
+    file = open(f'server/{filename}', 'a')
+    file.write(data)
+    file.close()
+    print(f'[CREATED] File \'{filename}\' added to server.')
+
+
 host = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host.bind(ADDR)
 print("[START] Server has started.")
@@ -29,12 +39,15 @@ while connected:
 
         wait_command = True
         while wait_command:
+            print('[WAIT] Waiting on command from client...')
             command = conn.recv(BUFFER).decode(FORMAT)
             if command == 'EXIT':
-                print('[EXIT] Client has ended connection.')
+                print('[EXIT] Client has terminated connection.')
                 connected = False
                 break
-            if command == 'PUT':
+            elif command == 'PUT':
                 put()
+            elif command == 'CREATE':
+                create()
 
 conn.close()
