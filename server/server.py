@@ -1,4 +1,5 @@
 import socket
+import glob
 
 PORT = 9999
 SERVER = 'localhost'
@@ -26,6 +27,11 @@ def create():
     file.close()
     print(f'[CREATED] File \'{filename}\' added to server.')
 
+def list():
+    files = str(glob.glob('server/*'))
+    data = bytes(files, FORMAT)
+    conn.send(data)
+    print('[SENT] List of files on server sent.')
 
 host = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host.bind(ADDR)
@@ -39,7 +45,6 @@ while connected:
 
         wait_command = True
         while wait_command:
-            print('[WAIT] Waiting on command from client...')
             command = conn.recv(BUFFER).decode(FORMAT)
             if command == 'EXIT':
                 print('[EXIT] Client has terminated connection.')
@@ -49,5 +54,7 @@ while connected:
                 put()
             elif command == 'CREATE':
                 create()
+            elif command == 'LIST':
+                list()
 
 conn.close()

@@ -27,6 +27,9 @@ def create(cmd):
     data = input(f'Enter the contents of file \'{filename}\': ')
     client.send(bytes(f'{filename}{SEPARATOR}{data}', FORMAT))
 
+def list():
+    list = client.recv(BUFFER).decode()
+    print(f'[RECEIVED] Files on server: {list}')
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(ADDR)
@@ -40,12 +43,16 @@ while connected:
     if command == 'EXIT':
         exit()
         connected = False
-    if command[:3] == 'PUT':
+    elif command[:3] == 'PUT':
         client.send(bytes('PUT', FORMAT))
         put(command)
-    if command[:6] == 'CREATE':
+    elif command[:6] == 'CREATE':
         client.send(bytes('CREATE', FORMAT))
         create(command)
+    elif command[:4] == 'LIST':
+        client.send(bytes('LIST', FORMAT))
+        list()
+        
 
 client.close()
 
