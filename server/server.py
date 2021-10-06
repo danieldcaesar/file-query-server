@@ -12,7 +12,7 @@ SEPARATOR = '<SEPARATOR>'
 
 def put():
     filename = conn.recv(BUFFER).decode(FORMAT)
-    file = open(f'server/{filename}', 'wb')
+    file = open(f'{filename}', 'wb')
     data = conn.recv(BUFFER)
     file.write(data)
     file.close()
@@ -22,13 +22,13 @@ def create():
     print('[WAIT] File being added to server...')
     received = conn.recv(BUFFER).decode()
     filename, data = received.split(SEPARATOR)
-    file = open(f'server/{filename}', 'a')
+    file = open(f'{filename}', 'a')
     file.write(data)
     file.close()
-    print(f'[CREATED] File \'{filename}\' added to server.')
+    print(f'[CREATED] File \'{filename}\' created in server.')
 
 def list():
-    files = str(glob.glob('server/*'))
+    files = str(glob.glob('*'))
     data = bytes(files, FORMAT)
     conn.send(data)
     print('[SENT] List of files on server sent.')

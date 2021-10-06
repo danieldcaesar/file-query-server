@@ -1,4 +1,6 @@
 import socket
+import os.path
+from os import path
 
 PORT = 9999
 SERVER = 'localhost'
@@ -15,7 +17,6 @@ def put(cmd):
     client.send(bytes(filename, FORMAT))
     file = open(filename, 'rb')
     data = file.read(BUFFER)
-
     while data:
         client.send(data)
         data = file.read(BUFFER)
@@ -44,8 +45,11 @@ while connected:
         exit()
         connected = False
     elif command[:3] == 'PUT':
-        client.send(bytes('PUT', FORMAT))
-        put(command)
+        if path.exists(command[4:]):
+            client.send(bytes('PUT', FORMAT))
+            put(command)
+        else:
+            print('[NOTE] File does not exist on client side.')
     elif command[:6] == 'CREATE':
         client.send(bytes('CREATE', FORMAT))
         create(command)
