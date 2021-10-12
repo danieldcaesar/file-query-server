@@ -7,7 +7,7 @@ ADDR = (SERVER, PORT)
 FORMAT = 'UTF-8'
 BUFFER = 4096
 SEPARATOR = '<SEPARATOR>'
-MSG =''
+MSG = " "
 
 
 def put():

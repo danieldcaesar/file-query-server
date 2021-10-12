@@ -28,7 +28,7 @@ def create(cmd):
     data = input(f'Enter the contents of file \'{filename}\': ')
     client.send(bytes(f'{filename}{SEPARATOR}{data}', FORMAT))
 
-def list():
+def lists():
     list = client.recv(BUFFER).decode()
     print(f'[RECEIVED] Files on server: {list}')
 
@@ -107,7 +107,7 @@ while connected:
         create(command)
     elif command[:4] == 'LIST':
         client.send(bytes('LIST', FORMAT))
-        list()
+        lists()
     elif command[:5] == 'DELTE':
         client.send(bytes('DELETE', FORMAT))
         delete()        
