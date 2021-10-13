@@ -28,9 +28,61 @@ def create(cmd):
     data = input(f'Enter the contents of file \'{filename}\': ')
     client.send(bytes(f'{filename}{SEPARATOR}{data}', FORMAT))
 
-def list():
+def lists():
     list = client.recv(BUFFER).decode()
     print(f'[RECEIVED] Files on server: {list}')
+
+
+def show(cmd):
+    filename = cmd[7:]
+    #Request file
+    client.send(bytes(filename,FORMAT))
+    #if file 'found /not found'
+    
+    #Recieve data from Server
+    data = client.recv(BUFFER)
+    print(data)
+
+
+def delete(cmd):
+    filename = cmd[7:]
+    #Request file
+    client.send(bytes(filename,FORMAT))
+    #if file 'found /not found'
+    data = client.recv(BUFFER).decode(FORMAT)
+    print(data) 
+    #Recieve data from Server
+    data = client.recv(BUFFER).decode(FORMAT)
+    print(data)
+
+def wordCount(cmd):
+    filename = cmd[7:]
+    #Request file
+    client.send(bytes(filename,FORMAT))
+    #if file 'found /not found'
+    client.recv(bytes())
+    #Recieve data from Server
+    data = client.recv(BUFFER).decode(FORMAT)
+    print(data)
+
+
+def search(cmd):    
+    filename = cmd[7:]
+    #Request file
+    client.send(bytes(filename,FORMAT))
+    #status 'found /not found'
+    
+    #Request word
+    word = input(f'Enter the word to search in the file \'{filename}\': ')
+    client.send(bytes(word, FORMAT))
+
+    #Recieve data from Server
+    data = client.recv(BUFFER)
+    print(data)
+
+
+
+
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(ADDR)
@@ -55,8 +107,16 @@ while connected:
         create(command)
     elif command[:4] == 'LIST':
         client.send(bytes('LIST', FORMAT))
-        list()
-        
+        lists()
+    elif command[:5] == 'DELTE':
+        client.send(bytes('DELETE', FORMAT))
+        delete()        
+    elif command[:10] == 'WORDCOUNT':
+        client.send(bytes('WORDCOUNT', FORMAT))
+        wordCount()
+    elif command[:7] == 'SEARCH':
+        client.send(bytes('SEARCH', FORMAT))
+        search()
 
 client.close()
 
