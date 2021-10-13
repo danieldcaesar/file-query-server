@@ -1,5 +1,7 @@
 import socket
 import glob
+import os.path
+from os import path
 
 PORT = 9999
 SERVER = 'localhost'
@@ -61,10 +63,10 @@ def delete():
         host.send(bytes(MSG,FORMAT))
         os.remove(filename)
         host.send(bytes('{filename} successfully deleted!'))
-    #file '!found'
-        elif 
-            MSG = 'File exist.'
-            host.send(bytes(MSG,FORMAT))
+         #file '!found'
+    else:
+        MSG = 'File exist.'
+        host.send(bytes(MSG,FORMAT))
 
 
 def wordCount():   
@@ -76,6 +78,7 @@ def wordCount():
         print('File does not exist.')
         host.send(bytes(MSG,FORMAT))
 
+    sum = 0
     file = open(f'{filename}', 'rb')
     #Read entire file
     while True :
@@ -83,9 +86,9 @@ def wordCount():
         data = data.split()
         for x in data:
             sum+=1
-        if sum > 0
+        if sum > 0 :
             host.send(bytes('{sum} words',FORMAT))
-        else
+        else :
             host.send(bytes('EMPTY FILE',FORMAT))
 
 
@@ -109,7 +112,7 @@ def search():
             if x == "banana":
                 host.send(bytes('FOUND {word}',FORMAT))
                 break 
-        else
+        else:
             host.send(bytes('{word}NOT FOUND',FORMAT))
 
 
@@ -145,7 +148,7 @@ while connected:
             elif command == 'WORDCOUNT':
                 wordCount()
             elif command == 'SEARCH':
-                search(command)
+                search()
     
 
 

@@ -34,7 +34,7 @@ def lists():
 
 
 def show(cmd):
-    filename = cmd[7:]
+    filename = cmd[4:]
     #Request file
     client.send(bytes(filename,FORMAT))
     #if file 'found /not found'
@@ -45,7 +45,7 @@ def show(cmd):
 
 
 def delete(cmd):
-    filename = cmd[7:]
+    filename = cmd[6:]
     #Request file
     client.send(bytes(filename,FORMAT))
     #if file 'found /not found'
@@ -56,7 +56,7 @@ def delete(cmd):
     print(data)
 
 def wordCount(cmd):
-    filename = cmd[7:]
+    filename = cmd[9:]
     #Request file
     client.send(bytes(filename,FORMAT))
     #if file 'found /not found'
@@ -67,7 +67,7 @@ def wordCount(cmd):
 
 
 def search(cmd):    
-    filename = cmd[7:]
+    filename = cmd[6:]
     #Request file
     client.send(bytes(filename,FORMAT))
     #status 'found /not found'
@@ -77,7 +77,7 @@ def search(cmd):
     client.send(bytes(word, FORMAT))
 
     #Recieve data from Server
-    data = client.recv(BUFFER)
+    data = client.recv(BUFFER).decode(FORMAT)
     print(data)
 
 
@@ -108,13 +108,13 @@ while connected:
     elif command[:4] == 'LIST':
         client.send(bytes('LIST', FORMAT))
         lists()
-    elif command[:5] == 'DELTE':
+    elif command[:7] == 'DELETE':
         client.send(bytes('DELETE', FORMAT))
         delete()        
-    elif command[:10] == 'WORDCOUNT':
+    elif command[:9] == 'WORDCOUNT':
         client.send(bytes('WORDCOUNT', FORMAT))
         wordCount()
-    elif command[:7] == 'SEARCH':
+    elif command[:6] == 'SEARCH':
         client.send(bytes('SEARCH', FORMAT))
         search()
 
