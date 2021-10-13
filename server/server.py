@@ -1,5 +1,8 @@
 import socket
 import glob
+import os
+import os.path
+from os import path
 
 PORT = 9999
 SERVER = 'localhost'
@@ -12,7 +15,7 @@ MSG = " "
 
 def put():
     filename = conn.recv(BUFFER).decode(FORMAT)
-    file = open(f'{filename}', 'wb')
+    file = open(filename, 'wb')
     data = conn.recv(BUFFER)
     file.write(data)
     file.close()
@@ -22,7 +25,7 @@ def create():
     print('[WAIT] File being added to server...')
     received = conn.recv(BUFFER).decode()
     filename, data = received.split(SEPARATOR)
-    file = open(f'{filename}', 'a')
+    file = open(filename, 'w')
     file.write(data)
     file.close()
     print(f'[CREATED] File \'{filename}\' created in server.')
@@ -35,82 +38,80 @@ def lists():
 
 
 def show():
-    print('[WAIT] File to be found in server...') 
+     
     #Requested file
-    filename = host.recv(BUFFER).decode(FORMAT)
+    filename = conn.recv(BUFFER).decode(FORMAT)
     #if file '!found'
-    if not os.path.isfile(filename):
-        print('File does not exist.')
-        host.send(bytes(MSG,FORMAT))
+    if path.exists(f'{filename}'):
+        file = open(f'{filename}', 'r')
+        data = str(file.read())
+        conn.send(bytes(data, FORMAT))
+        print(f'[SENT] Client requested file \'{filename}\'')
+        file.close()
+    else:
+        conn.send(bytes('Requested file not found.', FORMAT))
+        print(f'[NOTE] Client requested file \'{filename}\'. File not found.')
     #if file 'found'
-    file = open(f'{filename}', 'rb')
+    
     #Read entire file
-    while True :
-        data = file.read(BUFFER)
-        host.send(bytes(data,FORMAT))
-
+    
 
 
 def delete():
-    print('[WAIT] File to be found in server...') 
     #Requested file
-    filename = host.recv(BUFFER).decode(FORMAT)
+    filename = conn.recv(BUFFER).decode(FORMAT)
     #if file 'found'
-    if os.path.isfile(filename):
-        MSG = 'File exist.'
-        host.send(bytes(MSG,FORMAT))
+    if path.exists(filename):
         os.remove(filename)
-        host.send(bytes('{filename} successfully deleted!'))
+        print(f'[NOTE] File \'{filename}\' removed.')
+        conn.send(bytes(f'[NOTE] File \'{filename}\' removed from server.', FORMAT))
     #file '!found'
-        elif 
-            MSG = 'File exist.'
-            host.send(bytes(MSG,FORMAT))
+    else: 
+        conn.send(bytes('[SERVER] Unable to delete. Requested file not found.',FORMAT))
+        print(f'[NOTE] Client requested delete \'{filename}\'. File not found.')
 
 
-def wordCount():   
-    print('[WAIT] File to be found in server...') 
-    #Requested file
-    filename = host.recv(BUFFER).decode(FORMAT)
+def wordcount():   
+    filename = conn.recv(BUFFER).decode(FORMAT)
     #if file '!found'
-    if not os.path.isfile(filename):
-        print('File does not exist.')
-        host.send(bytes(MSG,FORMAT))
+    if path.exists(filename):
+        print(f'[REQUEST] Sent word count for file \'{filename}\'')
+        file = open(f'{filename}', 'rb')
+        read_data = file.read()
+        words = read_data.split()
+        num_words = len(words)
 
-    file = open(f'{filename}', 'rb')
-    #Read entire file
-    while True :
-        data = file.read(BUFFER)
-        data = data.split()
-        for x in data:
-            sum+=1
-        if sum > 0
-            host.send(bytes('{sum} words',FORMAT))
-        else
-            host.send(bytes('EMPTY FILE',FORMAT))
+        if num_words>0:
+            conn.send(bytes(f'[SERVER] Number of words: {num_words}', FORMAT))
+        else: 
+            conn.send(bytes('[SERVER] Empty file.',FORMAT))
+
+    else:
+        conn.send(bytes('[SERVER] File not found.', FORMAT))
+        print('[NOTE] Client requested WORDCOUNT on invalid file.')
+
+    
 
 
-def search():    
-    print('[WAIT] File to be found in server...') 
-    #Requested file
-    filename = host.recv(BUFFER).decode(FORMAT)
-    #if file '!found'
-    if not os.path.isfile(filename):
-        print('File does not exist.')
-        host.send(bytes(MSG,FORMAT))
-    #if file 'found' ,Get key
-    word = host.recv(BUFFER).decode(FORMAT)
+def search():   
+    print('[WAIT] Searching file on server...') 
+    received = conn.recv(BUFFER).decode(FORMAT)
+    filename, query = received.split(SEPARATOR)
+    if path.exists(filename):
+        file = open(filename, 'rb')
+        read_data = file.read()
+        words = str(read_data.split())
 
-    file = open(f'{filename}', 'rb')
-    #Read entire file
-    while True :
-        data = file.read(BUFFER)
-        data = data.split()
-        for x in data:
-            if x == "banana":
-                host.send(bytes('FOUND {word}',FORMAT))
-                break 
-        else
-            host.send(bytes('{word}NOT FOUND',FORMAT))
+        if query in words:
+            conn.send(bytes(f'[SERVER] \'{query}\' is in \'{filename}\'', FORMAT))
+            print(f'[NOTE] Query on file \'{filename}\' was successful.')
+        else:
+            conn.send(bytes(f'[SERVER] \'{query}\' is not in \'{filename}\'', FORMAT))
+            print(f'[NOTE] Query on file \'{filename}\' was unsuccessful.')
+
+    else:
+        conn.send(bytes('[SERVER] File not found.', FORMAT))
+        print(f'[NOTE] File queried not found.')
 
 
 
@@ -143,9 +144,9 @@ while connected:
             elif command == 'DELETE':               
                 delete()
             elif command == 'WORDCOUNT':
-                wordCount()
+                wordcount()
             elif command == 'SEARCH':
-                search(command)
+                search()
     
 
 

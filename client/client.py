@@ -28,56 +28,53 @@ def create(cmd):
     data = input(f'Enter the contents of file \'{filename}\': ')
     client.send(bytes(f'{filename}{SEPARATOR}{data}', FORMAT))
 
+    print(f'[SENT] File \'{filename}\' created.')
+
 def lists():
     list = client.recv(BUFFER).decode()
     print(f'[RECEIVED] Files on server: {list}')
 
 
 def show(cmd):
-    filename = cmd[7:]
+    filename = cmd[5:]
+    client.send(bytes(filename, FORMAT))
     #Request file
-    client.send(bytes(filename,FORMAT))
+    # client.send(bytes(filename,FORMAT))
     #if file 'found /not found'
     
     #Recieve data from Server
-    data = client.recv(BUFFER)
-    print(data)
+    data = str(client.recv(BUFFER).decode(FORMAT))
+    print(f'[SERVER]: {data}')
 
 
 def delete(cmd):
     filename = cmd[7:]
     #Request file
     client.send(bytes(filename,FORMAT))
-    #if file 'found /not found'
-    data = client.recv(BUFFER).decode(FORMAT)
-    print(data) 
-    #Recieve data from Server
-    data = client.recv(BUFFER).decode(FORMAT)
-    print(data)
+    
+    print(str(client.recv(BUFFER).decode(FORMAT)))
 
-def wordCount(cmd):
-    filename = cmd[7:]
-    #Request file
+
+def wordcount(cmd):
+    filename = cmd[10:]
     client.send(bytes(filename,FORMAT))
-    #if file 'found /not found'
-    client.recv(bytes())
-    #Recieve data from Server
+
+ 
     data = client.recv(BUFFER).decode(FORMAT)
     print(data)
 
 
-def search(cmd):    
+def search(cmd):
+    data = input('Enter the word to search: ')
     filename = cmd[7:]
-    #Request file
-    client.send(bytes(filename,FORMAT))
+
+    client.send(bytes(f'{filename}{SEPARATOR}{data}',FORMAT))
     #status 'found /not found'
     
     #Request word
-    word = input(f'Enter the word to search in the file \'{filename}\': ')
-    client.send(bytes(word, FORMAT))
 
     #Recieve data from Server
-    data = client.recv(BUFFER)
+    data = client.recv(BUFFER).decode(FORMAT)
     print(data)
 
 
@@ -101,22 +98,25 @@ while connected:
             client.send(bytes('PUT', FORMAT))
             put(command)
         else:
-            print('[NOTE] File does not exist on client side.')
+            print('[NOTE] File does not exist on client.')
     elif command[:6] == 'CREATE':
         client.send(bytes('CREATE', FORMAT))
         create(command)
     elif command[:4] == 'LIST':
         client.send(bytes('LIST', FORMAT))
         lists()
-    elif command[:5] == 'DELTE':
+    elif command[:4] == 'SHOW':
+        client.send(bytes('SHOW', FORMAT))
+        show(command)
+    elif command[:6] == 'DELETE':
         client.send(bytes('DELETE', FORMAT))
-        delete()        
-    elif command[:10] == 'WORDCOUNT':
+        delete(command)        
+    elif command[:9] == 'WORDCOUNT':
         client.send(bytes('WORDCOUNT', FORMAT))
-        wordCount()
-    elif command[:7] == 'SEARCH':
+        wordcount(command)
+    elif command[:6] == 'SEARCH':
         client.send(bytes('SEARCH', FORMAT))
-        search()
+        search(command)
 
 client.close()
 
